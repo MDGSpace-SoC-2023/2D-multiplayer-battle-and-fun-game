@@ -42,7 +42,7 @@ Foreground.src = './img/foreground.png'
 const playerupImage = new Image()
 playerupImage.src = './img/playerUp.png'
 const playerleftImage = new Image()
-playerleftImage.src = './img/playerleft.png'
+playerleftImage.src = './img/playerLeft.png'
 const playerrightImage = new Image()
 playerrightImage.src = './img/playerRight.png'
 
