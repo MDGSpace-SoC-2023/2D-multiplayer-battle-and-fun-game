@@ -23,6 +23,7 @@ function checkkeydown(e){
             keys.d.pressed = true
             break
     }
+    socket.emit('input',keys)
     
 }
 
@@ -41,6 +42,8 @@ function checkkeyup(e){
             keys.d.pressed = false
             break
     }
+    socket.emit('input',keys)
+
 }
 
 

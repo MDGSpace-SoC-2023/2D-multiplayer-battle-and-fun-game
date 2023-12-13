@@ -15,7 +15,7 @@ const collisionsMap = []
 for (let i = 0; i < collisions.length; i += 160) {  //converting 1D array to 2D
     collisionsMap.push(collisions.slice(i,160+i)) 
 }
-
+ 
 const offset = {x: -815,y : -900}//Offset to the map
 
 const boundaries = []
@@ -53,7 +53,7 @@ playerrightImage.src = './img/playerRight.png'
 
 
 //=============Player sprite=============//
-const player = new Sprite({
+let player = new Sprite({
     position:{
         x: canvas.width / 2 - (playerdownImage.width / 4) / 2,
         y: canvas.height / 2 - playerdownImage.height / 2
@@ -63,7 +63,7 @@ const player = new Sprite({
         max:4
     },
     sprites :{
-        up:playerupImage,
+        up:  playerupImage,
         left : playerleftImage,
         down : playerdownImage,
         right : playerrightImage,
@@ -72,17 +72,17 @@ const player = new Sprite({
 
 
 const players = {}
-
-
+let other ={}
 
 socket.on('updatePlayer', (backendPlayers) => {
+    
     for (const id in backendPlayers) {
         const backendPlayer = backendPlayers[id];
         if (!players[id]) {
             players[id] = new Sprite({
                 position: {
-                    x: canvas.width / 2 - (playerdownImage.width / 4) / 2,
-                    y: canvas.height / 2 - playerdownImage.height / 2
+                    x: (canvas.width / 2 - (playerdownImage.width / 4) / 2)*Math.random(), //for testing random added
+                    y: (canvas.height / 2 - playerdownImage.height / 2)*Math.random()
                 },
                 image: playerdownImage,
                 frames: {
@@ -95,8 +95,16 @@ socket.on('updatePlayer', (backendPlayers) => {
                     right: playerrightImage,
                 }
             });
-        } else {
-            players[id].position = backendPlayer.position;
+        
+        }}
+    for(const id in players){
+        if(!backendPlayers[id]){
+            delete players[id]
+        }
+    }
+    for(const id in players){
+        if(socket.id != id){
+          other[id] = players[id]
         }
     }
 });
@@ -138,26 +146,28 @@ window.addEventListener('touchend',touchend)
 function animate(){
     requestAnimationFrame(animate)
     background.draw()
-    boundaries.forEach(boundary => {boundary.draw()})  //can we used to locate barrier blocks
+    // boundaries.forEach(boundary => {boundary.draw()})  //can we used to locate barrier blocks
     for(const id in players){
         const player =players[id]
         player.draw()
     }
-
+    // player.draw()
     foreground.draw()
-
+    // console.log(player)
     let moving = true
-    player.moving =false
+    player.moving=false
 
-    
 
-    if (keys.w.pressed || touchup===true) {
-        player.moving = true
-        player.image = player.sprites.up
+   players[socket.id].moving = false
+
+    if (keys.w.pressed || touchup===true){
+        
+        players[socket.id].moving = true
+        players[socket.id].image = players[socket.id].sprites.up
         for(let i=0 ;i <boundaries.length;i++){
             const boundary = boundaries[i]
             if(rectangularcollision({
-                rectangle1: player,
+                rectangle1: players[socket.id],
                 rectangle2: {...boundary, position:{x:boundary.position.x ,y:boundary.position.y+5}
                    }
                  }
@@ -171,12 +181,12 @@ function animate(){
         })}
     }
     else if (keys.s.pressed || touchdown) {
-        player.moving=true
-        player.image = player.sprites.down
+        players[socket.id].moving=true
+        players[socket.id].image = players[socket.id].sprites.down
         for(let i=0 ;i <boundaries.length;i++){
             const boundary = boundaries[i]
             if(rectangularcollision({
-                rectangle1: player,
+                rectangle1: players[socket.id],
                 rectangle2: {...boundary, position:{x:boundary.position.x ,y:boundary.position.y-5}
                    }
                  }
@@ -192,12 +202,12 @@ function animate(){
         })}
     }
     else if (keys.a.pressed|| touchleft===true) {
-        player.moving=true
-        player.image = player.sprites.left
+        players[socket.id].moving=true
+        players[socket.id].image = players[socket.id].sprites.left
         for(let i=0 ;i <boundaries.length;i++){
             const boundary = boundaries[i]
             if(rectangularcollision({
-                rectangle1: player,
+                rectangle1: players[socket.id],
                 rectangle2: {...boundary, position:{x:boundary.position.x+5,y:boundary.position.y}
                    }
                  }
@@ -213,12 +223,12 @@ function animate(){
         })}
     }
     else if (keys.d.pressed|| touchright===true) {
-        player.moving=true
-        player.image=player.sprites.right
+        players[socket.id].moving=true
+        players[socket.id].image=players[socket.id].sprites.right
         for(let i=0 ;i <boundaries.length;i++){
             const boundary = boundaries[i]
             if(rectangularcollision({
-                rectangle1: player,
+                rectangle1: players[socket.id],
                 rectangle2: {...boundary, position:{x:boundary.position.x-5 ,y:boundary.position.y}
                    }
                  }

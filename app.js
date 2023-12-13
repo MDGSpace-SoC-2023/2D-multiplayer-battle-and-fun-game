@@ -20,14 +20,18 @@ const players = {}
 io.on('connection', (socket)=>{
     console.log('A user connected ')
     players[socket.id] ={
-        x:300,
-        y:300
+        x:500*Math.random(),
+        y:500*Math.random()
     }
     console.log(players)
     io.emit('updatePlayer' , players)
-    socket.on('disconnect',()=>{
-        console.log('player left')
+    socket.on('disconnect',(reason)=>{
+        console.log(reason)
         delete players[socket.id]
+        io.emit('updatePlayer',players)
+    })
+    socket.on('keypressed',()=>{
+        
     })
     
 
